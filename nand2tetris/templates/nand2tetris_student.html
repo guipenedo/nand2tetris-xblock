@@ -1,0 +1,92 @@
+<p id="upload_{{ xblock_id }}" class="upload">
+    <label>
+        {% if filename %}
+            Submissão de um ficheiro zip diferente
+        {% else %}
+            Submissão do projeto
+        {% endif %}
+        <input class="fileupload" accept=".zip" id="fileupload_{{ xblock_id }}" type="file" name="assignment"/>
+    </label>
+</p>
+<p class="error" tabindex="-1" aria-live="polite"></p>
+{% if filename %}
+<div id="sequential-status-message_{{ xblock_id }}" class="sequential-status-message">
+    <h3><b>Projeto submetido</b></h3>
+    <p>
+        <a id="download_link_{{ xblock_id }}" class="download_link">{{ filename }}</a>
+    </p>
+    <p>
+    <h3><b>Avaliação</b></h3> {% if score.score == score.max_score and score.score > 0 %}<i aria-hidden="true" class="fa fa-check" style="color:green"></i>{% else %}<i aria-hidden="true" class="fa fa-times" style="color:darkred"></i>{% endif %} {{ score.score }}/{{ score.max_score }} ({{ score.final }}%)
+    </p>
+    {% if not result.stderr %}
+        <p>
+            <i aria-hidden="true" class="fa fa-exclamation-triangle " style="color:red"></i> <b>Erro ao avaliar a tua submissão</b>
+        </p>
+        <pre class="nand-output">{{ result.stderr }}</pre>
+    {% else %}
+        <h3><b>Grupos de Testes</b> ({{ result.output|length }})</h3>
+        <div class="test_list">
+            {% for test in result.output %}
+                <p>{% if test.score == test.max_score and test.score > 0%}
+                    <i aria-hidden="true" class="fa fa-check" style="color:green"></i>{% else %}
+                    <i aria-hidden="true" class="fa fa-times" style="color:darkred"></i>{% endif %} <b>{{ test.number }}</b> {{ test.score }}/{{ test.max_score }}</p>
+                <pre class="nand-output">{{ test.output }}</pre>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endif %}
+
+
+{% if is_course_staff %}
+    <div class="submissions-header">
+        <h3>Submissões</h3>
+        <div class="submission-actions">
+            <a class="instructor-info-action button btn-download-all" href="#"
+               id="download-init-button_{{ xblock_id }}">Download todas as submissões</a>
+        {% if is_course_cohorted %}
+            <select id="turmas_filter_{{ xblock_id }}" data-column="4">
+                <option value="">– Turma –</option>
+                {% for turma in cohorts %}
+                    <option value="{{ turma }}">{{ turma }}</option>
+                {% endfor %}
+            </select>
+        {% endif %}
+        </div>
+    </div>
+    <p class="task-message"></p>
+    <div id="grade-info" style="display: block;"></div>
+    <table class="gridtable tablesorter" id="submissions_{{ xblock_id }}">
+        <thead>
+        <tr>
+            <th>Username</th>
+            <th>Nome</th>
+            <th>Timestamp</th>
+            <th>Score</th>
+            {% if is_course_cohorted %}
+                <th class="filter-exact" data-value="{{ cohort }}">Turma</th>
+            {% endif %}
+            <th>Filename</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for assignment in submissions %}
+            <tr data-student_code="{{ assignment.code }}" data-evaluation="{{ assignment.evaluation }}"
+                data-fullname="{{ assignment.fullname }}">
+                <td>{{ assignment.username }}</td>
+                <td>{{ assignment.fullname }}</td>
+                <td>{{ assignment.timestamp }}</td>
+                <td>{{ assignment.score.final }}/100</td>
+                {% if is_course_cohorted %}
+                    <td>{{ assignment.cohort }}</td>
+                {% endif %}
+                <td>
+                    <a class="download_student_assignment_{{ xblock_id }}" data-student_id="{{ assignment.student_id }}">
+                        {{ assignment.filename }}
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
