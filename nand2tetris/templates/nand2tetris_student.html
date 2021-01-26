@@ -18,7 +18,7 @@
     <p>
     <h3><b>Avaliação</b></h3> {% if score.score == score.max_score and score.score > 0 %}<i aria-hidden="true" class="fa fa-check" style="color:green"></i>{% else %}<i aria-hidden="true" class="fa fa-times" style="color:darkred"></i>{% endif %} {{ score.score }}/{{ score.max_score }} ({{ score.final }}%)
     </p>
-    {% if not result.stderr %}
+    {% if result.stderr %}
         <p>
             <i aria-hidden="true" class="fa fa-exclamation-triangle " style="color:red"></i> <b>Erro ao avaliar a tua submissão</b>
         </p>
@@ -67,12 +67,12 @@
                 <th class="filter-exact" data-value="{{ cohort }}">Turma</th>
             {% endif %}
             <th>Filename</th>
+            <th data-sorter="false">Avaliação</th>
         </tr>
         </thead>
         <tbody>
         {% for assignment in submissions %}
-            <tr data-student_code="{{ assignment.code }}" data-evaluation="{{ assignment.evaluation }}"
-                data-fullname="{{ assignment.fullname }}">
+            <tr data-student_id="{{ assignment.student_id }}">
                 <td>{{ assignment.username }}</td>
                 <td>{{ assignment.fullname }}</td>
                 <td>{{ assignment.timestamp }}</td>
@@ -85,8 +85,17 @@
                         {{ assignment.filename }}
                     </a>
                 </td>
+                <td>
+                    <a class="button view_submission_button_{{ xblock_id }}" href="#view_submission_{{ xblock_id }}">
+                        Ver Avaliação
+                    </a>
+                </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
+    <section aria-hidden="true" class="modal student-code-modal" id="view_submission_{{ xblock_id }}" tabindex="-1">
+        <div class="inner-wrapper" id="view_submission_inside_{{ xblock_id }}" style="color: black">
+        </div>
+    </section>
 {% endif %}

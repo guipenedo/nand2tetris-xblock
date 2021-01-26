@@ -8,6 +8,7 @@ function Nand2TetrisXBlock(runtime, element, context) {
         const downloadSubmissionsUrl = runtime.handlerUrl(element, 'download_submissions');
         const prepareDownloadSubmissionsUrl = runtime.handlerUrl(element, 'prepare_download_submissions');
         const downloadSubmissionsStatusUrl = runtime.handlerUrl(element, 'download_submissions_status');
+        const loadStudentSubmissionUrl = runtime.handlerUrl(element, 'load_student_submission');
         const preparingSubmissionsMsg = 'Started preparing student submissions zip file. This may take a while.';
 
         // add download url
@@ -19,6 +20,23 @@ function Nand2TetrisXBlock(runtime, element, context) {
             $(element).find(".download_student_assignment_" + id).each(function () {
                 $(this).prop("href", staffDownloadUrl + "?student_id=" + $(this).data("student_id"));
             });
+
+            $(element).find('.view_submission_button_' + id)
+                .leanModal()
+                .on('click', function () {
+                    let row = $(this).parents("tr");
+                    $.ajax({
+                        url: loadStudentSubmissionUrl,
+                        type: "GET",
+                        data: {"student_id": row.data('student_id')},
+                        dataType: "html",
+                        success: function (data) {
+                            let submission = $(element).find("#view_submission_inside_" + id);
+                            submission.html(data);
+                            submission.find(".download_link").prop("href", staffDownloadUrl + "?student_id=" + row.data("student_id"));
+                        },
+                    });
+                });
 
             $(element).find('#download-init-button_' + id).click(function (e) {
                 e.preventDefault();

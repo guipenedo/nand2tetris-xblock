@@ -1,0 +1,28 @@
+<h3><b>Projeto submetido</b></h3>
+<p>
+    <a class="download_link">{{ filename }}</a>
+</p>
+<p>
+<h3><b>Avaliação</b></h3> {% if score.score == score.max_score and score.score > 0 %}
+    <i aria-hidden="true" class="fa fa-check" style="color:green"></i>{% else %}
+    <i aria-hidden="true" class="fa fa-times"
+       style="color:darkred"></i>{% endif %} {{ score.score }}/{{ score.max_score }} ({{ score.final }}%)
+</p>
+{% if result.stderr %}
+    <p>
+        <i aria-hidden="true" class="fa fa-exclamation-triangle " style="color:red"></i> <b>Erro ao avaliar a tua
+        submissão</b>
+    </p>
+    <pre class="nand-output">{{ result.stderr }}</pre>
+{% else %}
+    <h3><b>Grupos de Testes</b> ({{ result.output|length }})</h3>
+    <div class="test_list">
+        {% for test in result.output %}
+            <p>{% if test.score == test.max_score and test.score > 0 %}
+                <i aria-hidden="true" class="fa fa-check" style="color:green"></i>{% else %}
+                <i aria-hidden="true" class="fa fa-times" style="color:darkred"></i>{% endif %}
+                <b>{{ test.number }}</b> {{ test.score }}/{{ test.max_score }}</p>
+            <pre class="nand-output">{{ test.output }}</pre>
+        {% endfor %}
+    </div>
+{% endif %}

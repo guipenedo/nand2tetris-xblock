@@ -153,12 +153,12 @@ table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSo
 
     left: 10% !important; /* important is necessary to override modal JS styling */
     margin-left: 0px !important; /* important is necessary to override modal JS styling */
-    bottom: 20px;
 }
 
 .student-code-modal .inner-wrapper {
     height: 100%;
     overflow-y: scroll;
+    padding: 20px;
     box-sizing: border-box;
 }
 

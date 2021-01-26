@@ -39,7 +39,7 @@ ITEM_TYPE = "nand2tetrisxblock"
 
 epicbox.configure(
     profiles=[
-        epicbox.Profile('nand2tetris', 'tcarreira/nand2tetris-autograder:sandbox-0.0.6')
+        epicbox.Profile('nand2tetris', 'tcarreira/nand2tetris-autograder:epicbox-0.0.9')
     ]
 )
 limits = {'cputime': 1, 'memory': 64}
@@ -100,16 +100,7 @@ class Nand2TetrisXBlock(XBlock, ScorableXBlockMixin, CompletableXBlockMixin, Stu
         The primary view of the StaffGradedAssignmentXBlock, shown to students
         when viewing courses.
         """
-        data = {
-            'xblock_id': self._get_xblock_loc(),
-            "max_file_size": self.student_upload_max_size(),
-            "base_asset_url": StaticContent.get_base_url_path_for_course_assets(self.location.course_key)
-        }
-        submission = self.get_submission()
-        if submission:
-            data["filename"] = submission['answer']['filename']
-            data["result"] = json.loads(submission['answer']['result'])
-            data["score"] = json.loads(submission['answer']['score'])
+        data = self.get_student_view_base_data()
 
         if self.is_course_staff():
             data['is_course_staff'] = True
@@ -132,6 +123,14 @@ class Nand2TetrisXBlock(XBlock, ScorableXBlockMixin, CompletableXBlockMixin, Stu
         return frag
 
     # ----------- Handlers -----------
+    @XBlock.handler
+    def load_student_submission(self, request, suffix=''):
+        require(self.is_course_staff())
+        require('student_id' in request.params)
+        student_id = request.params['student_id']
+        data = self.get_student_view_base_data(student_id)
+        return Response(body=loader.render_django_template('templates/submission_status.html', data))
+
     @XBlock.json_handler
     def change_cohort(self, data, _suffix):
         self.cohort = data["cohort"]
@@ -159,7 +158,7 @@ class Nand2TetrisXBlock(XBlock, ScorableXBlockMixin, CompletableXBlockMixin, Stu
         uploaded_file = File(upload.file)
         file_data = uploaded_file.open('rb')
         files = [{'name': 'submissao.zip', 'content': file_data.read()}]
-        result = epicbox.run('nand2tetris', "/grader/auto-tester.sh " + self.project + ".test", files=files,
+        result = epicbox.run('nand2tetris', self.project + ".test", files=files,
                              limits=limits)
         output = result["stdout"]
         stderr = result["stderr"]
@@ -328,6 +327,19 @@ class Nand2TetrisXBlock(XBlock, ScorableXBlockMixin, CompletableXBlockMixin, Stu
         )
 
     # ----------- Submissions -----------
+    def get_student_view_base_data(self, student_id=None):
+        data = {
+            'xblock_id': self._get_xblock_loc(),
+            "max_file_size": self.student_upload_max_size(),
+            "base_asset_url": StaticContent.get_base_url_path_for_course_assets(self.location.course_key)
+        }
+        submission = self.get_submission(student_id)
+        if submission:
+            data["filename"] = submission['answer']['filename']
+            data["result"] = json.loads(submission['answer']['result'])
+            data["score"] = json.loads(submission['answer']['score'])
+        return data
+
     def get_sorted_submissions(self):
         """returns student recent assignments sorted on date"""
         assignments = []
