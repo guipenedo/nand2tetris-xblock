@@ -67,7 +67,7 @@ class Nand2TetrisXBlock(XBlock, ScorableXBlockMixin, CompletableXBlockMixin, Stu
     project = String(display_name="project",
                      default="00",
                      scope=Scope.settings,
-                     help="Um dos projects <a href=\"https://hub.docker.com/r/tcarreira/nand2tetris-autograder\">desta tabela</a>.")
+                     help="Um \"Project\" <a href=\"https://github.com/tcarreira/nand2tetris-autograder#scoring\">desta tabela</a>")
 
     student_score = Float(display_name="student_score",
                           default=-1,
