@@ -68,6 +68,11 @@ class Nand2TetrisXBlock(XBlock, ScorableXBlockMixin, CompletableXBlockMixin, Stu
                      default="00",
                      scope=Scope.settings,
                      help="Um \"Project\" <a href=\"https://github.com/tcarreira/nand2tetris-autograder#scoring\">desta tabela</a>")
+    
+    subproject = String(display_name="subproject",
+                     default="",
+                     scope=Scope.settings,
+                     help="Se definido, corrige apenas uma componente do Project (eg: \"DMux4Way\" do <a href=\"https://github.com/tcarreira/nand2tetris-autograder/blob/master/spec/cases.01\">Project 01</a>)")
 
     student_score = Float(display_name="student_score",
                           default=-1,
@@ -83,7 +88,7 @@ class Nand2TetrisXBlock(XBlock, ScorableXBlockMixin, CompletableXBlockMixin, Stu
                     scope=Scope.preferences,
                     help="Turma selecionada para visualização de submissões")
 
-    editable_fields = ('display_name', 'project')
+    editable_fields = ('display_name', 'project', 'subproject')
     icon_class = 'problem'
     block_type = 'problem'
     has_score = True
@@ -174,8 +179,9 @@ class Nand2TetrisXBlock(XBlock, ScorableXBlockMixin, CompletableXBlockMixin, Stu
         try:
             output = json.loads(output)["tests"]
             for test in output:
-                score += int(test["score"])
-                max_score += int(test["max_score"])
+                if subproject == "" or self.subproject.lower() == test["number"].lower():
+                    score += int(test["score"])
+                    max_score += int(test["max_score"])
             if max_score > 0:
                 self.student_score = score / max_score
         except:
