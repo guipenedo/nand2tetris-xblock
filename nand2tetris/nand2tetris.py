@@ -67,7 +67,12 @@ class Nand2TetrisXBlock(XBlock, ScorableXBlockMixin, CompletableXBlockMixin, Stu
     project = String(display_name="project",
                      default="00",
                      scope=Scope.settings,
-                     help="Um dos projects <a href=\"https://hub.docker.com/r/tcarreira/nand2tetris-autograder\">desta tabela</a>.")
+                     help="Um \"Project\" <a href=\"https://github.com/tcarreira/nand2tetris-autograder#scoring\">desta tabela</a>")
+    
+    subproject = String(display_name="subproject",
+                     default="",
+                     scope=Scope.settings,
+                     help="Se definido, corrige apenas estas componentes do Project, separadas por vírgulas (eg: \"DMux4Way,Xor\" do <a href=\"https://github.com/tcarreira/nand2tetris-autograder/blob/master/spec/cases.01\">Project 01</a>)")
 
     student_score = Float(display_name="student_score",
                           default=-1,
@@ -83,7 +88,7 @@ class Nand2TetrisXBlock(XBlock, ScorableXBlockMixin, CompletableXBlockMixin, Stu
                     scope=Scope.preferences,
                     help="Turma selecionada para visualização de submissões")
 
-    editable_fields = ('display_name', 'project')
+    editable_fields = ('display_name', 'project', 'subproject')
     icon_class = 'problem'
     block_type = 'problem'
     has_score = True
@@ -168,11 +173,33 @@ class Nand2TetrisXBlock(XBlock, ScorableXBlockMixin, CompletableXBlockMixin, Stu
         except (UnicodeDecodeError, AttributeError):
             pass
 
+        try:
+            output = json.loads(output)["tests"]
+        except:
+            output=[]
+
+        # if subproject is defined, convert the comma-separated-values into a list
+        subprojects = [
+            cmpnt.strip()
+            for cmpnt in str(self.subproject or "").lower().strip().split(",")
+            if cmpnt.strip() != ""
+        ]
+
+        # refactor output when subproject is defined (consider only subprojects output)
+        try:
+            if subprojects:
+                new_output = []
+                for test in output:
+                    if "number" in test and test["number"].lower() in subprojects:
+                        new_output.append(test)
+                output = new_output
+        except:
+            pass
+
         score = 0
         max_score = 0
         self.student_score = 0.0
         try:
-            output = json.loads(output)["tests"]
             for test in output:
                 score += int(test["score"])
                 max_score += int(test["max_score"])
