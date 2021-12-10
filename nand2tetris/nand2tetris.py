@@ -42,7 +42,7 @@ epicbox.configure(
         epicbox.Profile('nand2tetris', 'tcarreira/nand2tetris-autograder:2.6-epicbox')
     ]
 )
-limits = {'cputime': 1, 'memory': 64}
+limits = {'cputime': 1, 'memory': 128}
 
 
 def reify(meth):
