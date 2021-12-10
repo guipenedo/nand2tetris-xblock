@@ -39,7 +39,7 @@ ITEM_TYPE = "nand2tetrisxblock"
 
 epicbox.configure(
     profiles=[
-        epicbox.Profile('nand2tetris', 'tcarreira/nand2tetris-autograder:2.6.1-epicbox')
+        epicbox.Profile('nand2tetris', 'tcarreira/nand2tetris-autograder:2.6-epicbox')
     ]
 )
 limits = {'cputime': 1, 'memory': 64}
