@@ -180,7 +180,7 @@ class Nand2TetrisXBlock(XBlock, ScorableXBlockMixin, CompletableXBlockMixin, Stu
 
         # if subproject is defined, convert the comma-separated-values into a list
         subprojects = [
-            cmpnt.strip()
+            cmpnt.strip() if "/" not in cmpnt else cmpnt.split("/")[1].strip()
             for cmpnt in str(self.subproject or "").lower().strip().split(",")
             if cmpnt.strip() != ""
         ]
